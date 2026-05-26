@@ -1,0 +1,2 @@
+run_date,scenario_id,scenario_name,model,seed,prompt_variant,intensity_level,material_profile,gravity_drape(0-2),tension_logic(0-2),compression_behavior(0-2),fold_hierarchy(0-2),material_identity(0-2),seam_realism(0-2),layer_interaction(0-2),thickness_volume(0-2),micro_detail(0-2),artifact_resistance(0-2),total_score,max_score,pass_fail,notes
+YYYY-MM-DD,1,Soft Portrait Drape,MODEL_NAME,SEED_VALUE,A,L1,soft,0,0,0,0,0,0,0,0,0,0,0,20,FAIL,replace with real run data
