@@ -1,37 +1,30 @@
 """Main Fabric Physics Engine orchestrator."""
 
-from typing import Dict, Any, List
+from __future__ import annotations
+
+from typing import Any, Dict
+
 from .intensity import Config, IntensityLevel, get_config_for_intensity
-from .modules.core_fabric_physics import CoreFabricPhysics
-from .modules.gravity_system import GravitySystem
-from .modules.tension_system import TensionSystem
+from .modules.anti_artifact import AntiArtifact
+from .modules.body_responsive_adaptation import BodyResponsiveAdaptation
+from .modules.cinematic_realism import CinematicRealism
 from .modules.compression_system import CompressionSystem
+from .modules.core_fabric_physics import CoreFabricPhysics
 from .modules.fold_generation import FoldGenerationSystem
-from .modules.material_control import MaterialControl
-from .modules.seam_construction import SeamConstruction
+from .modules.gravity_system import GravitySystem
 from .modules.layering_interaction import LayeringInteraction
+from .modules.material_control import MaterialControl
 from .modules.micro_wrinkles import MicroWrinkles
 from .modules.motion_inertia import MotionInertia
-from .modules.anti_artifact import AntiArtifact
-from .modules.cinematic_realism import CinematicRealism
-from .modules.body_responsive_adaptation import BodyResponsiveAdaptation
+from .modules.seam_construction import SeamConstruction
+from .modules.tension_system import TensionSystem
 
 
 class FabricPhysicsEngine:
     """Main Fabric Physics Engine for AI image generation."""
-    
-    def __init__(self, config: Config = None):
-        """Initialize the Fabric Physics Engine.
-        
-        Args:
-            config: Configuration object. Uses MEDIUM intensity if not provided.
-        """
-        if config is None:
-            config = get_config_for_intensity(IntensityLevel.MEDIUM)
-        
-        self.config = config
-        
-        # Initialize all modules
+
+    def __init__(self, config: Config | None = None):
+        self.config = config or get_config_for_intensity(IntensityLevel.MEDIUM)
         self.core_fabric_physics = CoreFabricPhysics()
         self.gravity_system = GravitySystem()
         self.tension_system = TensionSystem()
@@ -45,27 +38,24 @@ class FabricPhysicsEngine:
         self.anti_artifact = AntiArtifact()
         self.cinematic_realism = CinematicRealism()
         self.body_adaptation = BodyResponsiveAdaptation()
-        
         self._apply_intensity_scaling()
-    
-    def _apply_intensity_scaling(self):
-        """Apply intensity scaling to all modules."""
+
+    @classmethod
+    def from_intensity(cls, intensity: IntensityLevel | str) -> "FabricPhysicsEngine":
+        """Build an engine from a named intensity preset."""
+        return cls(get_config_for_intensity(intensity))
+
+    def _apply_intensity_scaling(self) -> None:
+        """Apply intensity scaling to selected numeric module parameters."""
         scale = self.config.realism_scale
-        
         self.gravity_system.gravity_strength *= scale
         self.fold_generation.primary_fold_angle *= scale
         self.micro_wrinkles.micro_wrinkle_density *= scale
         self.cinematic_realism.lighting_interaction *= scale
-    
+
     def generate_prompt(self) -> str:
-        """Generate complete prompt text for AI model.
-        
-        Returns:
-            Complete prompt incorporating all enabled modules.
-        """
-        prompts = []
-        
-        # Core systems
+        """Generate complete prompt text for an AI model."""
+        prompts = [self.core_fabric_physics.generate_prompt()]
         if self.config.enable_gravity:
             prompts.append(self.gravity_system.generate_prompt())
         if self.config.enable_tension:
@@ -90,15 +80,10 @@ class FabricPhysicsEngine:
             prompts.append(self.cinematic_realism.generate_prompt())
         if self.config.enable_body_adaptation:
             prompts.append(self.body_adaptation.generate_prompt())
-        
         return " | ".join(prompts)
-    
+
     def get_all_modules(self) -> Dict[str, Any]:
-        """Get all modules as dictionary.
-        
-        Returns:
-            Dictionary of all module configurations.
-        """
+        """Get all module configurations."""
         return {
             "core_fabric_physics": self.core_fabric_physics.to_dict(),
             "gravity_system": self.gravity_system.to_dict(),
@@ -114,13 +99,9 @@ class FabricPhysicsEngine:
             "cinematic_realism": self.cinematic_realism.to_dict(),
             "body_adaptation": self.body_adaptation.to_dict(),
         }
-    
+
     def export_config(self) -> Dict[str, Any]:
-        """Export full engine configuration.
-        
-        Returns:
-            Complete configuration dictionary.
-        """
+        """Export the complete engine configuration."""
         return {
             "config": self.config.to_dict(),
             "modules": self.get_all_modules(),
