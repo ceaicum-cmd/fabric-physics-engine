@@ -1,29 +1,29 @@
 """Body responsive adaptation module."""
 
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 @dataclass
 class BodyResponsiveAdaptation:
     """Adaptive fabric response to body geometry."""
-    
+
     name: str = "Body Responsive Adaptation"
     description: str = "Fabric adaptation to body shape and movement"
-    
+
     # Adaptation parameters
     body_contact_detection: float = 0.95
     fabric_conformance: float = 0.8
     anatomical_awareness: bool = True
     body_shape_response: float = 0.85
     dynamic_adaptation: bool = True
-    
+
     # Adaptation effects
     hugs_curves: bool = True
     follows_body_movement: bool = True
     creates_anatomical_folds: bool = True
     responds_to_anatomy: bool = True
-    
+
     def generate_prompt(self) -> str:
         """Generate prompt text for AI model."""
         effects = []
@@ -35,7 +35,7 @@ class BodyResponsiveAdaptation:
             effects.append("anatomical folds")
         if self.responds_to_anatomy:
             effects.append("anatomy-aware")
-        
+
         return (
             f"Body adaptation: contact detection {self.body_contact_detection}, "
             f"conformance {self.fabric_conformance}, "
@@ -44,7 +44,7 @@ class BodyResponsiveAdaptation:
             f"dynamic adaptation {'enabled' if self.dynamic_adaptation else 'disabled'}, "
             f"effects: {', '.join(effects)}"
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
