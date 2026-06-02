@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Union
+
+import numpy as np
 
 
 class IntensityLevel(str, Enum):
@@ -37,6 +39,16 @@ class Config:
     enable_anti_artifact: bool = True
     enable_cinematic_realism: bool = True
     enable_body_adaptation: bool = True
+
+    def __post_init__(self) -> None:
+        """Normalize and validate configuration values."""
+        self.intensity = IntensityLevel(self.intensity)
+        if (
+            not isinstance(self.realism_scale, (int, float))
+            or not np.isfinite(self.realism_scale)
+            or self.realism_scale <= 0
+        ):
+            raise ValueError("realism_scale must be a finite value greater than zero")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the configuration into serializable primitives."""
@@ -77,10 +89,10 @@ _PRESETS: Dict[IntensityLevel, Config] = {
 }
 
 
-def get_config_for_intensity(level: IntensityLevel | str) -> Config:
+def get_config_for_intensity(level: Union[IntensityLevel, str]) -> Config:
     """Return a copy of the preset configuration for an intensity level."""
     if isinstance(level, str):
-        level = IntensityLevel(level.lower())
+        level = IntensityLevel(level.lower().strip())
     preset = _PRESETS[level]
     data = preset.to_dict()
     data["intensity"] = level

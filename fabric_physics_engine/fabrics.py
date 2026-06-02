@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from enum import Enum
 from typing import Any, Dict
+
+import numpy as np
 
 
 class MaterialType(str, Enum):
@@ -32,6 +34,20 @@ class FabricProperties:
     wrinkle_tendency: float
     sheen: float = 0.0
 
+    def __post_init__(self) -> None:
+        """Reject invalid physical coefficients early."""
+        self.material_type = MaterialType(self.material_type)
+        positive = ("density", "thickness")
+        unit_interval = ("stretch", "stiffness", "damping", "friction", "wrinkle_tendency", "sheen")
+        for field_name in positive:
+            value = getattr(self, field_name)
+            if not np.isfinite(value) or value <= 0:
+                raise ValueError(f"{field_name} must be a finite value greater than zero")
+        for field_name in unit_interval:
+            value = getattr(self, field_name)
+            if not np.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{field_name} must be a finite value between 0 and 1")
+
     def to_dict(self) -> Dict[str, Any]:
         data = asdict(self)
         data["material_type"] = self.material_type.value
@@ -39,12 +55,24 @@ class FabricProperties:
 
 
 FABRIC_LIBRARY: Dict[str, FabricProperties] = {
-    "cotton": FabricProperties(MaterialType.COTTON, density=0.45, stretch=0.30, stiffness=0.55, damping=0.18, thickness=0.0020, friction=0.55, wrinkle_tendency=0.60, sheen=0.10),
-    "silk": FabricProperties(MaterialType.SILK, density=0.25, stretch=0.18, stiffness=0.20, damping=0.10, thickness=0.0008, friction=0.30, wrinkle_tendency=0.45, sheen=0.85),
-    "denim": FabricProperties(MaterialType.DENIM, density=0.75, stretch=0.12, stiffness=0.85, damping=0.28, thickness=0.0030, friction=0.75, wrinkle_tendency=0.35, sheen=0.05),
-    "leather": FabricProperties(MaterialType.LEATHER, density=0.90, stretch=0.08, stiffness=0.92, damping=0.22, thickness=0.0040, friction=0.65, wrinkle_tendency=0.20, sheen=0.55),
-    "chiffon": FabricProperties(MaterialType.CHIFFON, density=0.12, stretch=0.22, stiffness=0.08, damping=0.08, thickness=0.0004, friction=0.22, wrinkle_tendency=0.75, sheen=0.35),
-    "knit": FabricProperties(MaterialType.KNIT, density=0.35, stretch=0.70, stiffness=0.25, damping=0.24, thickness=0.0018, friction=0.50, wrinkle_tendency=0.40, sheen=0.12),
+    "cotton": FabricProperties(
+        MaterialType.COTTON, 0.45, 0.30, 0.55, 0.18, 0.0020, 0.55, 0.60, 0.10
+    ),
+    "silk": FabricProperties(
+        MaterialType.SILK, 0.25, 0.18, 0.20, 0.10, 0.0008, 0.30, 0.45, 0.85
+    ),
+    "denim": FabricProperties(
+        MaterialType.DENIM, 0.75, 0.12, 0.85, 0.28, 0.0030, 0.75, 0.35, 0.05
+    ),
+    "leather": FabricProperties(
+        MaterialType.LEATHER, 0.90, 0.08, 0.92, 0.22, 0.0040, 0.65, 0.20, 0.55
+    ),
+    "chiffon": FabricProperties(
+        MaterialType.CHIFFON, 0.12, 0.22, 0.08, 0.08, 0.0004, 0.22, 0.75, 0.35
+    ),
+    "knit": FabricProperties(
+        MaterialType.KNIT, 0.35, 0.70, 0.25, 0.24, 0.0018, 0.50, 0.40, 0.12
+    ),
 }
 
 
@@ -55,4 +83,4 @@ def get_fabric_properties(name: str) -> FabricProperties:
         available = ", ".join(sorted(FABRIC_LIBRARY))
         raise KeyError(f"Unknown fabric '{name}'. Available fabrics: {available}")
     fabric = FABRIC_LIBRARY[key]
-    return FabricProperties(**fabric.to_dict())
+    return replace(fabric)

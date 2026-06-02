@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Union
 
 from .intensity import Config, IntensityLevel, get_config_for_intensity
 from .modules.anti_artifact import AntiArtifact
@@ -23,7 +23,7 @@ from .modules.tension_system import TensionSystem
 class FabricPhysicsEngine:
     """Main Fabric Physics Engine for AI image generation."""
 
-    def __init__(self, config: Config | None = None):
+    def __init__(self, config: Optional[Config] = None):
         self.config = config or get_config_for_intensity(IntensityLevel.MEDIUM)
         self.core_fabric_physics = CoreFabricPhysics()
         self.gravity_system = GravitySystem()
@@ -41,7 +41,7 @@ class FabricPhysicsEngine:
         self._apply_intensity_scaling()
 
     @classmethod
-    def from_intensity(cls, intensity: IntensityLevel | str) -> "FabricPhysicsEngine":
+    def from_intensity(cls, intensity: Union[IntensityLevel, str]) -> "FabricPhysicsEngine":
         """Build an engine from a named intensity preset."""
         return cls(get_config_for_intensity(intensity))
 

@@ -1,29 +1,29 @@
 """Cinematic realism module."""
 
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 @dataclass
 class CinematicRealism:
     """Cinematic and photoreal enhancement."""
-    
+
     name: str = "Cinematic Realism"
     description: str = "Cinematic quality and photoreal rendering enhancement"
-    
+
     # Cinematic parameters
     lighting_interaction: float = 0.9
     subsurface_scattering: bool = True
     fabric_specularity: float = 0.4
     shadow_detail: float = 0.85
     ambient_occlusion_depth: float = 0.7
-    
+
     # Realism effects
     shows_fabric_luminosity: bool = True
     creates_realistic_shadows: bool = True
     shows_fabric_translucence: bool = True
     maintains_color_accuracy: bool = True
-    
+
     def generate_prompt(self) -> str:
         """Generate prompt text for AI model."""
         effects = []
@@ -35,7 +35,7 @@ class CinematicRealism:
             effects.append("light translucence")
         if self.maintains_color_accuracy:
             effects.append("color accuracy")
-        
+
         return (
             f"Cinematic realism: lighting interaction {self.lighting_interaction}, "
             f"subsurface scattering {'enabled' if self.subsurface_scattering else 'disabled'}, "
@@ -44,7 +44,7 @@ class CinematicRealism:
             f"AO depth {self.ambient_occlusion_depth}, "
             f"effects: {', '.join(effects)}"
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
