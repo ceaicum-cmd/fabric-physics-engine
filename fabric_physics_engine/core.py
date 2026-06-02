@@ -28,6 +28,8 @@ class FabricSimulation:
     """Manage garment meshes and step a simple cloth simulation."""
 
     def __init__(self, physics_engine: PhysicsEngine | None = None, constraint_iterations: int = 2):
+        if constraint_iterations < 0:
+            raise ValueError("constraint_iterations must be greater than or equal to zero")
         self.physics_engine = physics_engine or PhysicsEngine()
         self.constraint_iterations = constraint_iterations
         self.garments: list[SimulationGarment] = []
@@ -38,9 +40,19 @@ class FabricSimulation:
         positions = np.asarray(mesh["vertices"], dtype=np.float32).copy()
         faces = np.asarray(mesh["faces"], dtype=np.uint32).copy()
         masses = np.asarray(mesh.get("mass", np.ones(len(positions))), dtype=np.float32)
+        if positions.ndim != 2 or positions.shape[1] != 3 or not len(positions):
+            raise ValueError("mesh vertices must have shape (n, 3) with at least one vertex")
+        if faces.ndim != 2 or faces.shape[1] != 3:
+            raise ValueError("mesh faces must have shape (m, 3)")
+        if masses.shape != (len(positions),) or np.any(masses <= 0):
+            raise ValueError("mesh mass must have shape (n,) with values greater than zero")
         velocities = np.zeros_like(positions, dtype=np.float32)
         pinned = np.asarray(model.get_pinned_vertices(), dtype=int)
-        constraints = build_edge_constraints(positions, faces, stiffness=getattr(model.fabric_properties, "stiffness", 0.6))
+        if pinned.ndim != 1 or np.any(pinned < 0) or np.any(pinned >= len(positions)):
+            raise IndexError("pinned vertex index is outside the mesh")
+        constraints = build_edge_constraints(
+            positions, faces, stiffness=getattr(model.fabric_properties, "stiffness", 0.6)
+        )
         garment = SimulationGarment(
             model=model,
             positions=positions,
