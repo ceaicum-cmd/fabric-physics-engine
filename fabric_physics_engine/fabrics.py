@@ -43,7 +43,7 @@ FABRIC_LIBRARY: Dict[str, FabricProperties] = {
     "silk": FabricProperties(MaterialType.SILK, density=0.25, stretch=0.18, stiffness=0.20, damping=0.10, thickness=0.0008, friction=0.30, wrinkle_tendency=0.45, sheen=0.85),
     "denim": FabricProperties(MaterialType.DENIM, density=0.75, stretch=0.12, stiffness=0.85, damping=0.28, thickness=0.0030, friction=0.75, wrinkle_tendency=0.35, sheen=0.05),
     "leather": FabricProperties(MaterialType.LEATHER, density=0.90, stretch=0.08, stiffness=0.92, damping=0.22, thickness=0.0040, friction=0.65, wrinkle_tendency=0.20, sheen=0.55),
-    "chiffon": FabricProperties(MaterialType.CHIFFrON if False else MaterialType.CHIFFON, density=0.12, stretch=0.22, stiffness=0.08, damping=0.08, thickness=0.0004, friction=0.22, wrinkle_tendency=0.75, sheen=0.35),
+    "chiffon": FabricProperties(MaterialType.CHIFFON, density=0.12, stretch=0.22, stiffness=0.08, damping=0.08, thickness=0.0004, friction=0.22, wrinkle_tendency=0.75, sheen=0.35),
     "knit": FabricProperties(MaterialType.KNIT, density=0.35, stretch=0.70, stiffness=0.25, damping=0.24, thickness=0.0018, friction=0.50, wrinkle_tendency=0.40, sheen=0.12),
 }
 
